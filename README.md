@@ -1,6 +1,6 @@
-# 🚀 NestJS Boilerplate
+# 🚀 NestJS Template
 
-Um boilerplate para construção de APIs com **NestJS**. Para iniciar projetos com uma estrutura pronta e testada.
+Um template para construção de APIs com **NestJS**. Para iniciar projetos com uma estrutura pronta e testada.
 
 ![GitHub Repo Stars](https://img.shields.io/github/stars/EuMotta/template-backend-nestjs?style=for-the-badge)
 ![GitHub Forks](https://img.shields.io/github/forks/EuMotta/template-backend-nestjs?style=for-the-badge)
