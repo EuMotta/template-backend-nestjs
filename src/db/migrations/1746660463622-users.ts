@@ -1,32 +1,97 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 export class Users1746660463622 implements MigrationInterface {
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.createTable(
+      new Table({
+        name: 'users',
+        columns: [
+          {
+            name: 'id',
+            type: 'uuid',
+            isPrimary: true,
+            default: 'uuid_generate_v4()',
+          },
+          {
+            name: 'name',
+            type: 'varchar',
+            length: '50',
+            isNullable: false,
+          },
+          {
+            name: 'last_name',
+            type: 'varchar',
+            length: '256',
+            isNullable: false,
+          },
+          {
+            name: 'image',
+            type: 'varchar',
+            length: '256',
+            isNullable: true,
+          },
+          {
+            name: 'email',
+            type: 'varchar',
+            length: '256',
+            isNullable: false,
+            isUnique: true,
+          },
+          {
+            name: 'password',
+            type: 'varchar',
+            length: '256',
+            isNullable: false,
+          },
+          {
+            name: 'is_active',
+            type: 'boolean',
+            default: 'true',
+            isNullable: false,
+          },
+          {
+            name: 'is_banned',
+            type: 'boolean',
+            default: 'false',
+            isNullable: false,
+          },
+          {
+            name: 'is_email_verified',
+            type: 'boolean',
+            default: 'false',
+            isNullable: false,
+          },
+          {
+            name: 'role',
+            type: 'varchar',
+            length: '50',
+            default: "'USER'",
+            isNullable: false,
+          },
+          {
+            name: 'created_at',
+            type: 'timestamp',
+            default: 'CURRENT_TIMESTAMP',
+            isNullable: false,
+          },
+          {
+            name: 'updated_at',
+            type: 'timestamp',
+            default: 'CURRENT_TIMESTAMP',
+            isNullable: false,
+          },
+          {
+            name: 'deleted_at',
+            type: 'timestamp',
+            isNullable: true,
+          },
+        ],
+      }),
+      true,
+    );
+  }
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
-          CREATE TYPE "user_role" AS ENUM ('ADMIN', 'USER', 'MANAGER');
-    
-          CREATE TABLE "users" (
-              id uuid NOT NULL DEFAULT uuid_generate_v4(),
-              name varchar(50) NOT NULL,
-              last_name varchar(256) NOT NULL,
-              image varchar(256),
-              email varchar(256) NOT NULL,
-              password varchar(256) NOT NULL,
-              is_active boolean NOT NULL DEFAULT true,
-              is_banned boolean NOT NULL DEFAULT false,
-              is_email_verified boolean NOT NULL DEFAULT false,
-              created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-              updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-              deleted_at TIMESTAMP,
-              CONSTRAINT user_pk_id PRIMARY KEY (id),
-              CONSTRAINT user_un_email UNIQUE (email)
-          );
-        `);
-      }
-    
-      public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP TABLE IF EXISTS "user";`);
-      }
-
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropTable('users');
+  }
 }

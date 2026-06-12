@@ -15,18 +15,14 @@ export class AuditRepository extends Repository<AuditLog> {
     old_data,
     new_data,
   }: Omit<AuditLog, 'id' | 'created_at'>): Promise<void> {
-    try {
-      const audit = this.create({
-        user_id,
-        method,
-        path,
-        old_data,
-        new_data,
-      });
+    const audit = this.create({
+      user_id,
+      method,
+      path,
+      old_data,
+      new_data,
+    });
 
-      await this.save(audit);
-    } catch (error) {
-      console.error('Erro ao salvar log de auditoria:', error);
-    }
+    await this.save(audit);
   }
 }

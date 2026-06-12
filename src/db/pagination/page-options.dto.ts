@@ -1,22 +1,29 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
-import {
-  IsBooleanString,
-  IsEnum,
-  IsInt,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-} from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export enum Order {
   ASC = 'ASC',
   DESC = 'DESC',
 }
 
+function transformOrder(value: unknown): Order {
+  if (value === '' || value === undefined || value === null) {
+    return Order.ASC;
+  }
+  return value as Order;
+}
+
+function transformOrderBy(value: unknown): string {
+  if (value === '' || value === undefined || value === null) {
+    return 'created_at';
+  }
+  return value as string;
+}
+
 export class PageOptions {
   @ApiPropertyOptional({ enum: Order, default: Order.ASC })
+  @Transform(({ value }) => transformOrder(value))
   @IsEnum(Order)
   @IsOptional()
   readonly order?: Order = Order.ASC;
@@ -44,9 +51,10 @@ export class PageOptions {
   readonly status?: string;
 
   @ApiPropertyOptional({ description: 'Nome do campo para ordenação' })
+  @Transform(({ value }) => transformOrderBy(value))
   @IsString()
   @IsOptional()
-  readonly orderBy?: string = 'created_at';
+  readonly order_by?: string = 'created_at';
 
   get skip(): number {
     return (this.page - 1) * this.limit;

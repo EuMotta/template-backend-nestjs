@@ -4,7 +4,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
 } from 'typeorm';
-import { IsNotEmpty, IsString, IsOptional, IsObject } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional } from 'class-validator';
 
 @Entity({ name: 'audit_log' })
 export class AuditLog {
@@ -27,14 +27,12 @@ export class AuditLog {
   path: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  @IsNotEmpty({ message: 'O caminho (path) é obrigatório.' })
-  @IsObject({ message: 'Os dados antigos devem ser um objeto válido.' })
-  old_data: any;
+  @IsOptional()
+  old_data: unknown;
 
   @Column({ type: 'jsonb', nullable: true })
-  @IsNotEmpty({ message: 'O caminho (path) é obrigatório.' })
-  @IsObject({ message: 'Os dados novos devem ser um objeto válido.' })
-  new_data: any;
+  @IsOptional()
+  new_data: unknown;
 
   @CreateDateColumn({ name: 'created_at' })
   created_at: Date;
