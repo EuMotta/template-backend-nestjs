@@ -8,9 +8,9 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import * as classValidator from 'class-validator';
 import { UsersService } from '../users.service';
-import { UserEntity } from '../../db/entities/user.entity';
-import { AuditRepository } from '../../audit/audit.repository';
-import { PageOptions } from '../../db/pagination/page-options.dto';
+import { UserEntity } from '../../../db/entities/user.entity';
+import { AuditRepository } from '../../../audit/audit.repository';
+import { PageOptions } from '../../../db/pagination/page-options.dto';
 import { UpdateUserResponse } from '../user.dto';
 import * as bcrypt from 'bcrypt';
 

@@ -33,7 +33,7 @@ import { ApiResponseData } from 'src/interfaces/api';
 import { Page } from 'src/db/pagination/page.dto';
 import { PageOptions } from 'src/db/pagination/page-options.dto';
 import { AdminOnly } from 'src/guards/role.guard';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/modules/auth/auth.guard';
 import {
   AxiosErrorResponse,
   ApiResponseSuccess,

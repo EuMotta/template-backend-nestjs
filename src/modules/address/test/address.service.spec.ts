@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AddressService } from '../address.service';
-import { AddressEntity } from '../../db/entities/address.entity';
-import { UserEntity } from '../../db/entities/user.entity';
+import { AddressEntity } from '../../../db/entities/address.entity';
+import { UserEntity } from '../../../db/entities/user.entity';
 
 const mockRepo = () => ({
   create: jest.fn(),

@@ -3,8 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { EmailVerifyService } from '../email_verify.service';
-import { EmailVerifyEntity } from '../../db/entities/email_verify';
-import { UserEntity } from '../../db/entities/user.entity';
+import { EmailVerifyEntity } from '../../../db/entities/email_verify';
+import { UserEntity } from '../../../db/entities/user.entity';
 import { Repository } from 'typeorm';
 
 const mockEmailVerifyRepo = () => ({

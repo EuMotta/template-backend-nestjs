@@ -4,7 +4,7 @@ import { AddressController } from './address.controller';
 import { AddressService } from './address.service';
 import { AddressEntity } from 'src/db/entities/address.entity';
 import { UserEntity } from 'src/db/entities/user.entity';
-import { UsersModule } from 'src/users/users.module';
+import { UsersModule } from 'src/modules/users/users.module';
 
 @Module({
   controllers: [AddressController],

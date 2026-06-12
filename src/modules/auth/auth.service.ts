@@ -8,7 +8,7 @@ import {
 import { UsersService } from '../users/users.service';
 import { ConfigService } from '@nestjs/config';
 import { AuthResponseDto } from './auth.dto';
-import { UserAuthDto } from 'src/users/user.dto';
+import { UserAuthDto } from 'src/modules/users/user.dto';
 import { DEFAULT_JWT_EXPIRATION_SECONDS } from 'src/utils/constants';
 import { compareSync as bcryptCompareSync } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';

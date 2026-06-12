@@ -17,10 +17,10 @@ import {
   AxiosErrorResponse,
 } from 'src/utils/db-response.dto';
 import { CreateAddressDto, UpdateAddressDto } from './address.dto';
-import { GetUser } from '../decorators/get-user.decorator';
+import { GetUser } from '../../decorators/get-user.decorator';
 import { AuthGuard } from '../auth/auth.guard';
-import { TokenPayload } from '../interfaces/token.interface';
-import { ApiResponseData } from '../interfaces/api';
+import { TokenPayload } from '../../interfaces/token.interface';
+import { ApiResponseData } from '../../interfaces/api';
 
 @UseGuards(AuthGuard)
 @ApiTags('Address')

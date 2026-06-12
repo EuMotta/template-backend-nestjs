@@ -6,8 +6,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AddressEntity } from '../db/entities/address.entity';
-import { UserEntity } from '../db/entities/user.entity';
+import { AddressEntity } from '../../db/entities/address.entity';
+import { UserEntity } from '../../db/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateAddressDto, UpdateAddressDto } from './address.dto';
 import { ApiResponseSuccess } from 'src/utils/db-response.dto';

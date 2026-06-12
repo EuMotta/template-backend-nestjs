@@ -1,16 +1,16 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { DbModule } from './db/db.module';
 
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { seconds } from './utils';
-import { EmailVerifyModule } from './email_verify/email_verify.module';
-import { AddressModule } from './address/address.module';
+import { EmailVerifyModule } from './modules/email_verify/email_verify.module';
+import { AddressModule } from './modules/address/address.module';
 import { LoggingMiddleware } from './middlewares/logging.middleware';
 
 @Module({
