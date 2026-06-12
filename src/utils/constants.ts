@@ -1,0 +1,5 @@
+export const BCRYPT_SALT_ROUNDS = 10;
+
+export const EMAIL_VERIFY_TOKEN_TTL = '20m';
+
+export const DEFAULT_JWT_EXPIRATION_SECONDS = 3600;

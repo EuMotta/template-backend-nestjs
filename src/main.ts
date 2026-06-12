@@ -4,8 +4,13 @@ import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './utils/db-response-error';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+const DEFAULT_PORT = 3001;
+const DEFAULT_CORS_ORIGIN = 'http://localhost:3000';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.setGlobalPrefix('api/v1');
 
   const config = new DocumentBuilder()
     .setTitle('Nestjs example')
@@ -14,7 +19,9 @@ async function bootstrap() {
     .addTag('motta')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+  SwaggerModule.setup('docs', app, documentFactory, {
+    useGlobalPrefix: true,
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -26,10 +33,30 @@ async function bootstrap() {
 
   app.useGlobalFilters(new AllExceptionsFilter());
 
+  const allowedOrigins = process.env.CORS_ORIGIN?.split(',').map((origin) =>
+    origin.trim(),
+  ) || [DEFAULT_CORS_ORIGIN];
+
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(
+          new Error(
+            `Origin ${origin} not allowed by CORS policy. Allowed origins: ${allowedOrigins.join(', ')}`,
+          ),
+        );
+      }
+    },
+    credentials: true,
   });
-  await app.listen(3001);
+
+  const port = Number(process.env.PORT) || DEFAULT_PORT;
+  await app.listen(port);
 }
 
-bootstrap();
+void bootstrap();

@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 
 /**
@@ -22,13 +22,15 @@ import { Request, Response, NextFunction } from 'express';
 
 @Injectable()
 export class LoggingMiddleware implements NestMiddleware {
+  private readonly logger = new Logger(LoggingMiddleware.name);
+
   use(req: Request, res: Response, next: NextFunction) {
     const startTime = Date.now();
 
     res.on('finish', () => {
       const responseTime = Date.now() - startTime;
-      console.log(
-        `[${new Date().toISOString()}] ${req.method} ${req.url} - Status: ${res.statusCode} - Tempo de resposta: ${responseTime}ms`,
+      this.logger.log(
+        `${req.method} ${req.url} - Status: ${res.statusCode} - Tempo de resposta: ${responseTime}ms`,
       );
     });
 

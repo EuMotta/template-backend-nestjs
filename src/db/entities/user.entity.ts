@@ -1,7 +1,7 @@
+import { Exclude } from 'class-transformer';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import {
   IsEmail,
-  IsEnum,
   IsNotEmpty,
   IsString,
   IsStrongPassword,
@@ -39,13 +39,14 @@ export class UserEntity extends BaseEntity {
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: 'boolean', default: false })
   is_banned: boolean;
 
   @Column({ type: 'boolean', default: false })
   is_email_verified: boolean;
 
   @Column({ type: 'varchar', name: 'password' })
+  @Exclude()
   @IsNotEmpty({ message: 'A senha é obrigatória.' })
   @IsStrongPassword(
     {
@@ -61,6 +62,10 @@ export class UserEntity extends BaseEntity {
     },
   )
   password: string;
+
+  @Column({ type: 'varchar', default: 'USER' })
+  @IsString({ message: 'O papel deve ser uma string.' })
+  role: string;
 
   @OneToMany(() => AddressEntity, (address) => address.user, { cascade: true })
   address: AddressEntity[];
