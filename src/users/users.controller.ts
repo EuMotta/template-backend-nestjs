@@ -34,9 +34,11 @@ import { Page } from 'src/db/pagination/page.dto';
 import { PageOptions } from 'src/db/pagination/page-options.dto';
 import { AdminOnly } from 'src/guards/role.guard';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { AxiosErrorResponse } from 'src/utils/db-response.dto';
+import {
+  AxiosErrorResponse,
+  ApiResponseSuccess,
+} from 'src/utils/db-response.dto';
 import { ApiResponseUser, ApiResponseUserList } from './user-swagger-response';
-import { ApiResponseSuccess } from 'src/utils/db-response.dto';
 
 /**
  * Controlador responsável pela gestão de usuários no sistema.
@@ -193,9 +195,8 @@ export class UsersController {
    * @throws {ForbiddenException} Se o usuário não tiver permissão para atualizar os dados.
    */
 
-  @UseGuards(AdminOnly)
+  @UseGuards(AuthGuard, AdminOnly)
   @Throttle({ default: { limit: 1, ttl: 500 } })
-  @UseGuards(AuthGuard)
   @Put('/:email')
   /* swagger start */
   @ApiOperation({
@@ -233,8 +234,7 @@ export class UsersController {
    * @throws {BadRequestException} Caso a operação falhe.
    */
 
-  @UseGuards(AdminOnly)
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, AdminOnly)
   @Patch('update_status/:email')
   /* swagger start */
   @ApiOperation({
@@ -272,7 +272,7 @@ export class UsersController {
    * @throws {BadRequestException} Caso a operação falhe.
    */
 
-  @UseGuards(AdminOnly)
+  @UseGuards(AuthGuard, AdminOnly)
   @Patch('update_email/:email')
   /* swagger start */
   @ApiOperation({
@@ -310,6 +310,7 @@ export class UsersController {
    * @throws {BadRequestException} Caso a operação falhe.
    */
 
+  @UseGuards(AuthGuard)
   @Delete('/:email')
   @ApiOperation({
     summary: 'Deletar usuário por email',
@@ -348,7 +349,7 @@ export class UsersController {
    * @throws {BadRequestException} Caso a operação falhe.
    */
 
-  @UseGuards(AdminOnly)
+  @UseGuards(AuthGuard, AdminOnly)
   @Patch('update_password/:email')
   /* swagger start */
   @ApiOperation({

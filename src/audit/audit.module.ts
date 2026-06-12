@@ -6,7 +6,7 @@ import { AuditRepository } from './audit.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([AuditLog])],
-  providers: [AuditService, AuditRepository], 
+  providers: [AuditService, AuditRepository],
   exports: [AuditService, AuditRepository],
 })
 export class AuditModule {}

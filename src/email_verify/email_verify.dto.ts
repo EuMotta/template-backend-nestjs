@@ -16,7 +16,7 @@ export class EmailVerifyDto {
     example: 'a3e1f9c7-d2a1-41f0-9f9e-b86cb78a6ec3',
   })
   id: string;
-  
+
   @IsEmail()
   @ApiProperty({
     description: 'User email address',
@@ -49,14 +49,6 @@ export class EmailVerifyDto {
  */
 
 export class EmailVerifyRequestDto {
-  @IsEmail()
-  @ApiProperty({
-    description: 'User email address',
-    example: 'user@example.com',
-  })
-  email: string;
-}
-export class EmailVerifyRequest {
   @IsEmail()
   @ApiProperty({
     description: 'User email address',

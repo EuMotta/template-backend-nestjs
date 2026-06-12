@@ -8,9 +8,10 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
+import { BaseEntity } from './base.entity';
 
 @Entity({ name: 'email_verify' })
-export class EmailVerifyEntity {
+export class EmailVerifyEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   @ApiProperty({
     example: 'b4d1f9a8-d3b2-42f1-8c1d-b65ab78b6ed5',

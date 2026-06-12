@@ -1,9 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
-  IsDate,
   IsEmail,
-  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -88,9 +86,21 @@ export class UserDto extends Timestamps {
 
   @IsString()
   @ApiProperty({
-    description: 'Senha do usuário (hashed)',
-    example: '$2b$10$XXXXXXXXXXXXXXXXXXXXX',
+    description: 'Cargo do usuário',
+    example: 'USER',
   })
+  role: string;
+}
+
+/**
+ * @class UserAuthDto
+ *
+ * DTO interno para autenticação que inclui o campo password.
+ * Não deve ser exposto em respostas da API.
+ */
+
+export class UserAuthDto extends UserDto {
+  @IsString()
   password: string;
 }
 

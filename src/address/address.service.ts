@@ -6,11 +6,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AddressEntity } from 'src/db/entities/address.entity';
-import { UserEntity } from 'src/db/entities/user.entity';
+import { AddressEntity } from '../db/entities/address.entity';
+import { UserEntity } from '../db/entities/user.entity';
 import { Repository } from 'typeorm';
-import { CreateAddressDto } from './address.dto';
+import { CreateAddressDto, UpdateAddressDto } from './address.dto';
 import { ApiResponseSuccess } from 'src/utils/db-response.dto';
+import { ApiResponseData } from 'src/interfaces/api';
 
 @Injectable()
 export class AddressService {
@@ -48,9 +49,11 @@ export class AddressService {
           zip_code: newAddress.zip_code,
         },
       });
-  
+
       if (existingAddress) {
-        throw new ConflictException('Endereço já cadastrado para este usuário.');
+        throw new ConflictException(
+          'Endereço já cadastrado para este usuário.',
+        );
       }
       const address = this.addressRepository.create({
         ...newAddress,
@@ -71,10 +74,61 @@ export class AddressService {
         throw error;
       }
 
-      console.error('Erro ao criar endereço:', error);
       throw new InternalServerErrorException(
         'Ocorreu um erro ao criar o endereço.',
       );
     }
+  }
+
+  async findByUser(userId: string): Promise<ApiResponseData<AddressEntity[]>> {
+    const addresses = await this.addressRepository.find({
+      where: { user: { id: userId } },
+      relations: { user: true },
+    });
+
+    return {
+      error: false,
+      message: 'Endereços encontrados com sucesso',
+      data: addresses,
+    };
+  }
+
+  async update(
+    userId: string,
+    addressId: string,
+    data: UpdateAddressDto,
+  ): Promise<ApiResponseSuccess> {
+    const address = await this.addressRepository.findOne({
+      where: { id: addressId, user: { id: userId } },
+    });
+
+    if (!address) {
+      throw new NotFoundException('Endereço não encontrado');
+    }
+
+    Object.assign(address, data);
+    await this.addressRepository.save(address);
+
+    return {
+      error: false,
+      message: 'Endereço atualizado com sucesso',
+    };
+  }
+
+  async delete(userId: string, addressId: string): Promise<ApiResponseSuccess> {
+    const address = await this.addressRepository.findOne({
+      where: { id: addressId, user: { id: userId } },
+    });
+
+    if (!address) {
+      throw new NotFoundException('Endereço não encontrado');
+    }
+
+    await this.addressRepository.remove(address);
+
+    return {
+      error: false,
+      message: 'Endereço deletado com sucesso',
+    };
   }
 }

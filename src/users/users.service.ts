@@ -12,6 +12,7 @@ import {
   UpdateUserPasswordResponse,
   UpdateUserResponse,
   UpdateUserStatusResponse,
+  UserAuthDto,
   UserDto,
 } from './user.dto';
 import { hashSync, compareSync } from 'bcrypt';
@@ -20,6 +21,7 @@ import { UserEntity } from 'src/db/entities/user.entity';
 import { Repository } from 'typeorm';
 import { validate } from 'class-validator';
 import { ApiResponseData } from 'src/interfaces/api';
+import { BCRYPT_SALT_ROUNDS } from 'src/utils/constants';
 import { PageOptions } from 'src/db/pagination/page-options.dto';
 import { Page } from 'src/db/pagination/page.dto';
 import { PageMeta } from 'src/db/pagination/page-meta.dto';
@@ -36,8 +38,8 @@ import { ApiResponseSuccess } from 'src/utils/db-response.dto';
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
-    private usersRepository: Repository<UserEntity>,
-    private auditRepository: AuditRepository,
+    private readonly usersRepository: Repository<UserEntity>,
+    private readonly auditRepository: AuditRepository,
   ) {}
 
   /**
@@ -70,15 +72,13 @@ export class UsersService {
       const errors = await validate(dbUser);
 
       if (errors.length > 0) {
-        const messages = errors
-          .map((error) => {
-            return error.constraints ? Object.values(error.constraints) : [];
-          })
-          .flat();
+        const messages = errors.flatMap((error) => {
+          return error.constraints ? Object.values(error.constraints) : [];
+        });
 
         throw new BadRequestException(messages);
       }
-      dbUser.password = hashSync(newUser.password, 10);
+      dbUser.password = hashSync(newUser.password, BCRYPT_SALT_ROUNDS);
 
       await this.usersRepository.save(dbUser);
 
@@ -94,7 +94,6 @@ export class UsersService {
         throw error;
       }
 
-      console.error('Erro ao criar usuário:', error);
       throw new InternalServerErrorException(
         'Ocorreu um erro ao criar o usuário',
       );
@@ -131,17 +130,15 @@ export class UsersService {
       userToUpdate.image = data.image ?? userToUpdate.image;
 
       if (data.password) {
-        userToUpdate.password = hashSync(data.password, 10);
+        userToUpdate.password = hashSync(data.password, BCRYPT_SALT_ROUNDS);
       }
 
       const errors = await validate(userToUpdate);
 
       if (errors.length > 0) {
-        const messages = errors
-          .map((error) =>
-            error.constraints ? Object.values(error.constraints) : [],
-          )
-          .flat();
+        const messages = errors.flatMap((error) =>
+          error.constraints ? Object.values(error.constraints) : [],
+        );
 
         throw new BadRequestException(messages);
       }
@@ -154,8 +151,6 @@ export class UsersService {
         data: null,
       };
     } catch (error) {
-      console.error('Erro ao atualizar usuário:', error);
-
       if (
         error instanceof NotFoundException ||
         error instanceof UnauthorizedException ||
@@ -187,8 +182,6 @@ export class UsersService {
     data: UpdateUserEmailResponse,
   ): Promise<ApiResponseData<UpdateUserEmailResponse>> {
     try {
-      console.log(userEmail);
-      console.log(data);
       if (!this.isValidEmail(userEmail)) {
         throw new BadRequestException('Formato de email inválido');
       }
@@ -217,9 +210,9 @@ export class UsersService {
 
       const errors = await validate(userToUpdate);
       if (errors.length > 0) {
-        const messages = errors
-          .map((error) => Object.values(error.constraints || {}))
-          .flat();
+        const messages = errors.flatMap((error) =>
+          Object.values(error.constraints || {}),
+        );
         throw new BadRequestException(messages);
       }
 
@@ -228,7 +221,7 @@ export class UsersService {
       await this.auditRepository.logAudit({
         user_id: userToUpdate.id,
         method: 'PATCH',
-        path: `/users/update_status/${userToUpdate.email}`,
+        path: `/users/update_email/${userToUpdate.email}`,
         old_data: oldData,
         new_data: userToUpdate.email,
       });
@@ -239,8 +232,6 @@ export class UsersService {
         data: null,
       };
     } catch (error) {
-      console.error('Erro ao atualizar usuário:', error);
-
       if (
         error instanceof NotFoundException ||
         error instanceof UnauthorizedException ||
@@ -293,16 +284,14 @@ export class UsersService {
       }
 
       if (data.new_password) {
-        userToUpdate.password = hashSync(data.new_password, 10);
+        userToUpdate.password = hashSync(data.new_password, BCRYPT_SALT_ROUNDS);
       }
-
-      await this.usersRepository.save(userToUpdate);
 
       const errors = await validate(userToUpdate);
       if (errors.length > 0) {
-        const messages = errors
-          .map((error) => Object.values(error.constraints || {}))
-          .flat();
+        const messages = errors.flatMap((error) =>
+          Object.values(error.constraints || {}),
+        );
         throw new BadRequestException(messages);
       }
 
@@ -314,8 +303,6 @@ export class UsersService {
         data: null,
       };
     } catch (error) {
-      console.error('Erro ao atualizar usuário:', error);
-
       if (
         error instanceof NotFoundException ||
         error instanceof UnauthorizedException ||
@@ -362,9 +349,9 @@ export class UsersService {
 
       const errors = await validate(userToUpdate);
       if (errors.length > 0) {
-        const messages = errors
-          .map((error) => Object.values(error.constraints || {}))
-          .flat();
+        const messages = errors.flatMap((error) =>
+          Object.values(error.constraints || {}),
+        );
         throw new BadRequestException(messages);
       }
 
@@ -384,7 +371,6 @@ export class UsersService {
         data: null,
       };
     } catch (error) {
-      console.error('Erro ao atualizar usuário:', error);
       if (
         error instanceof NotFoundException ||
         error instanceof BadRequestException
@@ -393,7 +379,6 @@ export class UsersService {
       }
       throw new InternalServerErrorException(
         'Ocorreu um erro ao atualizar o usuário:',
-        error,
       );
     }
   }
@@ -411,8 +396,8 @@ export class UsersService {
     pageOptions: PageOptions,
   ): Promise<ApiResponseData<Page<UserDto>>> {
     try {
-      const { page, limit, search, status, order, orderBy } = pageOptions;
-      const offset = (page - 1) * limit;
+      const { limit, search, status, order, order_by } = pageOptions;
+      const offset = pageOptions.skip;
 
       const queryBuilder = this.usersRepository
         .createQueryBuilder('user')
@@ -443,14 +428,14 @@ export class UsersService {
         queryBuilder.andWhere('user.is_active = :status', { status: isActive });
       }
 
-      if (orderBy) {
+      if (order_by) {
         const validColumns = ['name', 'last_name', 'email', 'created_at'];
-        if (!validColumns.includes(orderBy)) {
+        if (!validColumns.includes(order_by)) {
           throw new BadRequestException(
-            `Campo de ordenação inválido: ${orderBy}`,
+            `Campo de ordenação inválido: ${order_by}`,
           );
         }
-        queryBuilder.orderBy(`user.${orderBy}`, order || 'ASC');
+        queryBuilder.orderBy(`user.${order_by}`, order || 'ASC');
       } else {
         queryBuilder.orderBy('user.created_at', order || 'ASC');
       }
@@ -474,7 +459,6 @@ export class UsersService {
         throw error;
       }
 
-      console.error('Erro ao procurar lista de usuários:', error);
       throw new InternalServerErrorException(
         'Ocorreu um erro ao procurar os usuários',
       );
@@ -491,7 +475,7 @@ export class UsersService {
 
   async findByUserEmailAuth(
     email: string,
-  ): Promise<ApiResponseData<UserDto | null> | null> {
+  ): Promise<ApiResponseData<UserAuthDto | null> | null> {
     if (!this.isValidEmail(email)) {
       throw new BadRequestException('Formato de email inválido');
     }
@@ -625,7 +609,6 @@ export class UsersService {
         message: 'Usuário deletado com sucesso!',
       };
     } catch (error) {
-      console.error('Erro ao atualizar usuário:', error);
       if (
         error instanceof NotFoundException ||
         error instanceof BadRequestException
@@ -634,7 +617,6 @@ export class UsersService {
       }
       throw new InternalServerErrorException(
         'Ocorreu um erro ao atualizar o usuário:',
-        error,
       );
     }
   }

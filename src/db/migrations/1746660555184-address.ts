@@ -1,31 +1,120 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
 export class Address1746660555184 implements MigrationInterface {
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.createTable(
+      new Table({
+        name: 'address',
+        columns: [
+          {
+            name: 'id',
+            type: 'uuid',
+            isPrimary: true,
+            default: 'uuid_generate_v4()',
+          },
+          {
+            name: 'user_id',
+            type: 'uuid',
+            isNullable: false,
+          },
+          {
+            name: 'street',
+            type: 'varchar',
+            length: '255',
+            isNullable: false,
+          },
+          {
+            name: 'number',
+            type: 'varchar',
+            length: '10',
+            isNullable: false,
+          },
+          {
+            name: 'complement',
+            type: 'varchar',
+            length: '255',
+            isNullable: true,
+          },
+          {
+            name: 'district',
+            type: 'varchar',
+            length: '100',
+            isNullable: false,
+          },
+          {
+            name: 'city',
+            type: 'varchar',
+            length: '100',
+            isNullable: false,
+          },
+          {
+            name: 'state',
+            type: 'varchar',
+            length: '50',
+            isNullable: false,
+          },
+          {
+            name: 'zip_code',
+            type: 'varchar',
+            length: '20',
+            isNullable: false,
+          },
+          {
+            name: 'country',
+            type: 'varchar',
+            length: '50',
+            default: "'Brasil'",
+            isNullable: false,
+          },
+          {
+            name: 'created_at',
+            type: 'timestamp',
+            default: 'CURRENT_TIMESTAMP',
+            isNullable: false,
+          },
+          {
+            name: 'updated_at',
+            type: 'timestamp',
+            default: 'CURRENT_TIMESTAMP',
+            isNullable: false,
+          },
+          {
+            name: 'deleted_at',
+            type: 'timestamp',
+            isNullable: true,
+          },
+        ],
+      }),
+      true,
+    );
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
-              CREATE TABLE "address" (
-                id uuid NOT NULL DEFAULT uuid_generate_v4(),
-                user_id uuid NOT NULL,
-                street varchar(255) NOT NULL,
-                number varchar(10) NOT NULL,
-                complement varchar(255),
-                district varchar(100) NOT NULL,
-                city varchar(100) NOT NULL,
-                state varchar(50) NOT NULL,
-                zip_code varchar(20) NOT NULL,
-                country varchar(50) NOT NULL DEFAULT 'Brasil',
-                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                deleted_at TIMESTAMP,
-                CONSTRAINT pk_addresses PRIMARY KEY (id),
-                CONSTRAINT fk_addresses_user FOREIGN KEY (user_id) REFERENCES "users"(id) ON DELETE CASCADE
-              );
-            `);
-      }
-    
-      public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP TABLE IF EXISTS "address";`);
-      }
+    await queryRunner.createForeignKey(
+      'address',
+      new TableForeignKey({
+        name: 'fk_addresses_user',
+        columnNames: ['user_id'],
+        referencedTableName: 'users',
+        referencedColumnNames: ['id'],
+        onDelete: 'CASCADE',
+      }),
+    );
+  }
 
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    const table = await queryRunner.getTable('address');
+    if (table) {
+      const foreignKey = table.foreignKeys.find(
+        (fk) => fk.name === 'fk_addresses_user',
+      );
+      if (foreignKey) {
+        await queryRunner.dropForeignKey('address', foreignKey);
+      }
+    }
+    await queryRunner.dropTable('address');
+  }
 }

@@ -1,4 +1,11 @@
-import { IsUUID, IsString, IsOptional, IsDate, IsNotEmpty, Length } from 'class-validator';
+import {
+  IsUUID,
+  IsString,
+  IsOptional,
+  IsDate,
+  IsNotEmpty,
+  Length,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class AddressDto {
@@ -124,6 +131,41 @@ export class CreateAddressDto {
   @IsString({ message: 'O CEP deve ser uma string.' })
   @Length(8, 20, { message: 'O CEP deve ter entre 8 e 20 caracteres.' })
   zip_code: string;
+
+  @IsOptional()
+  @IsString({ message: 'O país deve ser uma string.' })
+  country?: string;
+}
+
+export class UpdateAddressDto {
+  @IsOptional()
+  @IsString({ message: 'O nome da rua deve ser uma string.' })
+  street?: string;
+
+  @IsOptional()
+  @IsString({ message: 'O número deve ser uma string.' })
+  number?: string;
+
+  @IsOptional()
+  @IsString({ message: 'O complemento deve ser uma string.' })
+  complement?: string;
+
+  @IsOptional()
+  @IsString({ message: 'O bairro deve ser uma string.' })
+  district?: string;
+
+  @IsOptional()
+  @IsString({ message: 'A cidade deve ser uma string.' })
+  city?: string;
+
+  @IsOptional()
+  @IsString({ message: 'O estado deve ser uma string.' })
+  state?: string;
+
+  @IsOptional()
+  @IsString({ message: 'O CEP deve ser uma string.' })
+  @Length(8, 20, { message: 'O CEP deve ter entre 8 e 20 caracteres.' })
+  zip_code?: string;
 
   @IsOptional()
   @IsString({ message: 'O país deve ser uma string.' })

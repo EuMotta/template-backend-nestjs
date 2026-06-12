@@ -63,6 +63,6 @@ export class EmailVerifyController {
     @Query('token') token: string,
   ): Promise<ApiResponseData<null>> {
     await this.emailVerifyService.verifyEmailToken(token);
-    return { message: 'E-mail verificado com sucesso' };
+    return { error: false, message: 'E-mail verificado com sucesso' };
   }
 }

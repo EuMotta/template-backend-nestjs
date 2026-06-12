@@ -9,17 +9,16 @@ import { DbModule } from './db/db.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { seconds } from './utils';
-import { AuditController } from './audit/audit.controller';
-import { EmailVerifyController } from './email_verify/email_verify.controller';
 import { EmailVerifyModule } from './email_verify/email_verify.module';
-import { AddressController } from './address/address.controller';
 import { AddressModule } from './address/address.module';
 import { LoggingMiddleware } from './middlewares/logging.middleware';
-import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
+    }),
     /*  MongooseModule.forRootAsync({
       inject: [ConfigService],
       imports: [ConfigModule],
@@ -52,12 +51,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     EmailVerifyModule,
     AddressModule,
   ],
-  controllers: [
-    AppController,
-    AuditController,
-    EmailVerifyController,
-    AddressController,
-  ],
+  controllers: [AppController],
   providers: [
     AppService,
     {

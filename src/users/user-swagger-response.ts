@@ -1,6 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PageMeta } from 'src/db/pagination/page-meta.dto';
-import { IsArray, IsBoolean, IsDate, IsEmail, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsEmail,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class User {
   @IsUUID()
@@ -100,13 +108,6 @@ export class User {
     required: false,
   })
   deleted_at?: Date;
-
-  @IsString()
-  @ApiProperty({
-    description: 'Senha do usuário (hashed)',
-    example: '$2b$10$XXXXXXXXXXXXXXXXXXXXX',
-  })
-  password: string;
 }
 
 /**
@@ -160,5 +161,5 @@ export class ApiResponseUser {
   message: string;
 
   @ApiProperty({ type: User, nullable: true })
-  data?: User| null;
+  data?: User | null;
 }

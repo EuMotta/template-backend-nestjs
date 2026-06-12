@@ -8,6 +8,8 @@ import {
 import { UsersService } from '../users/users.service';
 import { ConfigService } from '@nestjs/config';
 import { AuthResponseDto } from './auth.dto';
+import { UserAuthDto } from 'src/users/user.dto';
+import { DEFAULT_JWT_EXPIRATION_SECONDS } from 'src/utils/constants';
 import { compareSync as bcryptCompareSync } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { isEmail } from 'class-validator';
@@ -39,7 +41,8 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {
     this.jwtExpirationTimeInSeconds = +(
-      this.configService.get<number>('JWT_EXPIRATION_TIME') ?? '3600'
+      this.configService.get<number>('JWT_EXPIRATION_TIME') ??
+      DEFAULT_JWT_EXPIRATION_SECONDS
     );
   }
 
@@ -68,28 +71,24 @@ export class AuthService {
         throw new NotFoundException('Usuário não encontrado.');
       }
 
-      const foundUser = findUser.data;
+      const foundUser = findUser.data as UserAuthDto;
 
-      if (!email || !password) {
-        throw new UnauthorizedException('Credenciais não fornecidas');
+      if (!foundUser) {
+        throw new UnauthorizedException('Credenciais inválidas');
       }
 
-      if (!foundUser || !bcryptCompareSync(password, foundUser.password)) {
-        throw new UnauthorizedException('Usuário não encontrado');
+      if (!foundUser.is_active || foundUser.is_banned) {
+        throw new UnauthorizedException('Credenciais inválidas');
       }
 
-      if (!foundUser.is_active) {
-        throw new UnauthorizedException('Sua conta foi desativada');
-      }
-
-      if (foundUser.is_banned) {
-        throw new UnauthorizedException('Sua conta está banida.');
+      if (!bcryptCompareSync(password, foundUser.password)) {
+        throw new UnauthorizedException('Credenciais inválidas');
       }
 
       const payload = {
-        id: foundUser.id,
         sub: foundUser.id,
         email: foundUser.email,
+        role: foundUser.role,
       };
 
       const token = this.jwtService.sign(payload);
@@ -111,8 +110,6 @@ export class AuthService {
         },
       };
     } catch (error) {
-      console.error('Erro no login:', error);
-
       if (
         error instanceof NotFoundException ||
         error instanceof UnauthorizedException ||

@@ -8,10 +8,7 @@ import { UsersModule } from 'src/users/users.module';
 
 @Module({
   controllers: [AddressController],
-  imports: [
-    TypeOrmModule.forFeature([AddressEntity, UserEntity]),
-    UsersModule,
-  ],
+  imports: [TypeOrmModule.forFeature([AddressEntity, UserEntity]), UsersModule],
   exports: [AddressService],
   providers: [AddressService],
 })

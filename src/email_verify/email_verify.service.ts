@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EmailVerifyEntity } from 'src/db/entities/email_verify';
 import { JwtService } from '@nestjs/jwt';
+import { EMAIL_VERIFY_TOKEN_TTL } from 'src/utils/constants';
 import { UserEntity } from 'src/db/entities/user.entity';
 import { ApiResponseData } from 'src/interfaces/api';
 
@@ -26,7 +27,6 @@ export class EmailVerifyService {
 
   async sendVerificationEmail(email: string): Promise<ApiResponseData<null>> {
     try {
-      console.log('chegou');
       const user = await this.usersRepository
         .createQueryBuilder('user')
         .where('user.email = :email', { email })
@@ -37,7 +37,9 @@ export class EmailVerifyService {
       }
 
       const payload = { sub: user.id };
-      const token = this.jwtService.sign(payload, { expiresIn: '20m' });
+      const token = this.jwtService.sign(payload, {
+        expiresIn: EMAIL_VERIFY_TOKEN_TTL,
+      });
 
       const emailVerify = this.emailVerifyRepository.create({
         user: { id: user.id },
@@ -52,8 +54,6 @@ export class EmailVerifyService {
         data: null,
       };
     } catch (error) {
-      console.error('Erro ao enviar a verificação:', error);
-
       if (
         error instanceof NotFoundException ||
         error instanceof UnauthorizedException ||
@@ -70,16 +70,20 @@ export class EmailVerifyService {
 
   async verifyEmailToken(token: string): Promise<void> {
     try {
-      const decoded = this.jwtService.verify(token);
+      const decoded = this.jwtService.verify<{ sub: string }>(token);
       const userId = decoded.sub;
 
       const emailVerify = await this.emailVerifyRepository.findOne({
         where: { token },
-        relations: ['user'],
+        relations: { user: true },
       });
 
       if (!emailVerify) {
         throw new NotFoundException('Token não encontrado.');
+      }
+
+      if (emailVerify.user.id !== userId) {
+        throw new UnauthorizedException('Token inválido ou expirado.');
       }
 
       const user = emailVerify.user;
@@ -87,7 +91,7 @@ export class EmailVerifyService {
       await this.usersRepository.save(user);
 
       await this.emailVerifyRepository.delete(emailVerify.id);
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException('Token inválido ou expirado.');
     }
   }

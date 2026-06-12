@@ -7,6 +7,11 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { TokenPayload } from 'src/interfaces/token.interface';
+
+interface RequestWithUser extends Request {
+  user: TokenPayload;
+}
 
 /**
  * @class AuthGuard
@@ -18,28 +23,33 @@ import { Request } from 'express';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  private jwtSecret: string;
+  private readonly jwtSecret: string;
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {
-    this.jwtSecret = this.configService.get<string>('JWT_SECRET') || '';
+    const secret = this.configService.get<string>('JWT_SECRET');
+    if (!secret) {
+      throw new Error(
+        'JWT_SECRET must be set in environment variables. Application cannot start without it.',
+      );
+    }
+    this.jwtSecret = secret;
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
       throw new UnauthorizedException();
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
+      const payload = await this.jwtService.verifyAsync<TokenPayload>(token, {
         secret: this.jwtSecret,
       });
-      request['user'] = payload;
-    } catch (error) {
-      console.log(error);
+      request.user = payload;
+    } catch {
       throw new UnauthorizedException('Sem autorização');
     }
     return true;
